@@ -1,5 +1,4 @@
 import torch as torch
-import bo_torch as bo_torch
 
 class NN(torch.nn.Module):
     def __init__(self, n_in, n_hidden, hidden_layers):
@@ -17,6 +16,3 @@ class NN(torch.nn.Module):
         for layer in self.layers:
             x = layer(x)
         return x
-
-class Model(bo_torch.models.Model):
-    def

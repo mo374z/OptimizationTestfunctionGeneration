@@ -39,7 +39,7 @@ def plot_simulated_meshgrid(X, Y, mesh_results, model: str):
 
     return plt.gca()
 
-def plot_ground_truth(n_dim, problem, f_name, xlim=(-5, 5), step=0.01 ):
+def plot_ground_truth(n_dim, problem, f_name, xlim=(-5, 5), step=0.01):
     ranges = [torch.arange(xlim[0], xlim[1] + step, step=step) for _ in range(n_dim)]
     meshgrid = torch.meshgrid(*ranges)
     points = torch.stack(meshgrid, dim=-1).view(-1, n_dim)
@@ -62,7 +62,7 @@ def plot_ground_truth(n_dim, problem, f_name, xlim=(-5, 5), step=0.01 ):
     return plt.gca()
 
 
-def plot_collage(samples, results, problem_name, X, Y, mesh_results):
+def plot_collage(samples, results, problem, problem_name, X, Y, mesh_results):
     # Plot the sampled points
     plt.figure(figsize=(14, 6))
 
@@ -75,7 +75,7 @@ def plot_collage(samples, results, problem_name, X, Y, mesh_results):
 
     # Plot the ground truth using a contour plot
     plt.subplot(1, 3, 3)
-    plot_ground_truth(f_name=problem_name)
+    plot_ground_truth(2, problem, f_name=problem_name)
 
     plt.tight_layout()
     return plt.gca()
