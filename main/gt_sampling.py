@@ -42,9 +42,11 @@ def get_sample(f_number, n_samples, n_dim, seed=42, lower_bound=-5, upper_bound=
         raise ValueError('We only use BBOB functions be 1, 3 and 24')
 
     if method == 'random':
-        return random_sample(n_samples, n_dim, seed, lower_bound, upper_bound)
+        result = random_sample(n_samples, n_dim, seed, lower_bound, upper_bound)
+        return result, problem(torch.tensor(result, dtype=torch.float64).float())
     elif method == 'pso':
-        return sample_from_problem_with_pso(problem, n_dim, seed, n_samples=n_samples, particles=particles, iters=iters, options=options, lower_bound=lower_bound, upper_bound=upper_bound)
+        result = sample_from_problem_with_pso(problem, n_dim, seed, n_samples=n_samples, particles=particles, iters=iters, options=options, lower_bound=lower_bound, upper_bound=upper_bound)
+        return result, problem(torch.tensor(result, dtype=torch.float64).float())
     else:
         raise ValueError('method must be either random or pso')
     
