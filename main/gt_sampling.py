@@ -31,6 +31,22 @@ def random_sample(n_samples, n_dim, seed, lower_bound=-3, upper_bound=5):
     samples_random = np.random.uniform(low=lower_bound, high=upper_bound, size=(n_samples, n_dim))
     return samples_random
 
+def get_gradient(problem, x, h=1e-5):
+    gradient = []
+    for i in range(len(x)):
+        # Create a perturbed point for the i-th dimension
+        perturbed_x = x.clone()
+        perturbed_x[i] += h
+        
+        # Calculate function values at the original and perturbed points
+        y_original = problem(x)
+        y_perturbed = problem(perturbed_x)
+        
+        # Calculate finite difference approximation of the partial derivative
+        partial_derivative = (y_perturbed - y_original) / h
+        gradient.append(partial_derivative.item())
+    return gradient
+
 def get_sample(problem, n_samples, n_dim, seed=42, lower_bound=-5, upper_bound=5, method='random', particles=20, iters=250, options={'c1': 0.8, 'c2': 0.3, 'w': 0.95}):
     if method == 'random':
         result = random_sample(n_samples, n_dim, seed, lower_bound, upper_bound)
@@ -39,6 +55,11 @@ def get_sample(problem, n_samples, n_dim, seed=42, lower_bound=-5, upper_bound=5
     else:
         raise ValueError('method must be either random or pso')
     
-    return result, problem(torch.tensor(result, dtype=torch.float64).float())
+    gradients = np.array([])
+    for i in range(n_samples):
+        gradients = np.append(gradients, get_gradient(problem, torch.tensor(result[i])))
+
+    gradients = gradients.reshape((n_samples, n_dim))
     
+    return result, problem(torch.tensor(result, dtype=torch.float64).float()), gradients
 
