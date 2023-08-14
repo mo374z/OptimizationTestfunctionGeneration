@@ -33,10 +33,10 @@ def random_sample(n_samples, n_dim, seed, lower_bound=-3, upper_bound=5):
 
 def get_gradient(problem, x, h=1e-5):
     gradient = []
-    for i in range(len(x)):
+    for i in range(len(x[0])):
         # Create a perturbed point for the i-th dimension
         perturbed_x = x.clone()
-        perturbed_x[i] += h
+        perturbed_x[0][i] += h
         
         # Calculate function values at the original and perturbed points
         y_original = problem(x)
@@ -57,7 +57,7 @@ def get_sample(problem, n_samples, n_dim, seed=42, lower_bound=-5, upper_bound=5
     
     gradients = np.array([])
     for i in range(n_samples):
-        gradients = np.append(gradients, get_gradient(problem, torch.tensor(result[i])))
+        gradients = np.append(gradients, get_gradient(problem, torch.tensor(result[i], dtype=torch.float64).reshape((1, n_dim)).float()))
 
     gradients = gradients.reshape((n_samples, n_dim))
     
