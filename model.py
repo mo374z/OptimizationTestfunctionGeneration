@@ -65,7 +65,7 @@ class NN1(torch.nn.Module):
 
 # class for surrogate model
 class SurrogateModel(torch.nn.Module):
-    def __init__(self, input_dim, hidden_dim, output_dim):
+    def __init__(self, input_dim, hidden_dim, output_dim, dropout_rate=0.5, weight_decay=0.001):
         super(SurrogateModel, self).__init__()
         self.fc1 = torch.nn.Linear(input_dim, hidden_dim)
         self.relu1 = torch.nn.ReLU()
@@ -73,16 +73,39 @@ class SurrogateModel(torch.nn.Module):
         self.relu2 = torch.nn.ReLU()
         self.fc3 =  torch.nn.Linear(hidden_dim, hidden_dim)
         self.tanh3 = torch.nn.Tanh()
-        self.fc4 = torch.nn.Linear(hidden_dim, output_dim)
+        self.fc4 = torch.nn.Linear(hidden_dim, hidden_dim)
         self.sigmoid4 = torch.nn.Sigmoid()
-        self.fc5 = torch.nn.Linear(hidden_dim, output_dim)
+        self.fc5 = torch.nn.Linear(hidden_dim, hidden_dim)
+        self.prelu = torch.nn.PReLU()
+        self.fc6 = torch.nn.Linear(hidden_dim, hidden_dim)
+        self.elu = torch.nn.ELU()
+        self.fc7 = torch.nn.Linear(hidden_dim, hidden_dim)
+        self.prelu = torch.nn.PReLU()
+        self.fc8 = torch.nn.Linear(hidden_dim, hidden_dim)
+        self.elu = torch.nn.ELU()
+        self.output_layer = torch.nn.Linear(hidden_dim, output_dim)
+        self.dropout = torch.nn.Dropout(dropout_rate)
+        self.weight_decay = weight_decay
+
     
     def forward(self, x):
         x = self.relu1(self.fc1(x))
+        x = self.dropout(x)
         x = self.relu2(self.fc2(x))
+        x = self.dropout(x)
         x = self.tanh3(self.fc3(x))
+        x = self.dropout(x)
         x = self.sigmoid4(self.fc4(x))
-        x = self.fc5(x)
+        x = self.dropout(x)
+        x = self.prelu(self.fc5(x))
+        x = self.dropout(x)
+        x = self.elu(self.fc6(x))
+        x = self.dropout(x)
+        x = self.prelu(self.fc7(x))
+        x = self.dropout(x)
+        x = self.elu(self.fc8(x))
+        x = self.dropout(x)
+        x = self.output_layer(x)
         return x
 
 
@@ -106,3 +129,35 @@ class AttentionNN(torch.nn.Module):
         attended_input = torch.sum(x * attention_weights, dim=0)
         output = self.fc(attended_input)
         return output
+    
+
+class ResidualBlock(torch.nn.Module):
+    def __init__(self, in_channels, out_channels):
+        super(ResidualBlock, self).__init__()
+        self.conv1 = torch.nn.Conv1d(2, 16, kernel_size=3, padding=1)
+        self.conv2 = torch.nn.Conv1d(16, 1, kernel_size=3, padding=1)
+        self.relu = torch.nn.ReLU()
+
+    def forward(self, x):
+        residual = x
+        out = self.relu(self.conv1(x))
+        out = self.conv2(out)
+        out += residual
+        return self.relu(out)
+
+class ResNet(torch.nn.Module):
+    def __init__(self):
+        super(ResNet, self).__init__()
+        self.conv = torch.nn.Conv1d(1, 64, kernel_size=3, padding=1)
+        self.residual_block1 = ResidualBlock(64, 64)
+        self.residual_block2 = ResidualBlock(64, 64)
+        self.fc = torch.nn.Linear(64 * 2, 1)  # Adjust input_length
+        self.relu = torch.nn.ReLU()
+
+    def forward(self, x):
+        x = self.relu(self.conv(x))
+        x = self.residual_block1(x)
+        x = self.residual_block2(x)
+        x = x.view(x.size(0), -1)
+        x = self.fc(x)
+        return x
