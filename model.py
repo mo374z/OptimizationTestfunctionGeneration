@@ -101,6 +101,20 @@ class NN3_norm(torch.nn.Module):
         x = self.output_layer(x)
         return x
 
+# Define a Graph Neural Network architecture
+class GNNModel(torch.nn.Module):
+    def __init__(self):
+        super(GNNModel, self).__init__()
+        self.conv1 = GCNConv(2, 16)  # Input dimension: 2, Output dimension: 16
+        self.conv2 = GCNConv(16, 1)  # Output dimension: 1
+
+    def forward(self, data):
+        x, edge_index = data.x, data.edge_index
+        x = self.conv1(x, edge_index)
+        x = self.conv2(x, edge_index)
+        return x.view(-1)
+
+
 # class for surrogate model
 class SurrogateModel(torch.nn.Module):
     def __init__(self, input_dim, hidden_dim, output_dim, dropout_rate=0.5, weight_decay=0.001):
