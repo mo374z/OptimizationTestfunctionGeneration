@@ -1,12 +1,12 @@
 import torch as torch
 
 class NN(torch.nn.Module):
-    def __init__(self, n_in, n_hidden, hidden_layers):
+    def __init__(self, n_in, n_hidden, hidden_layers, activation=torch.nn.ReLU):
         super().__init__()
         self.layers = torch.nn.ModuleList()
         for _ in range(hidden_layers):
             self.layers.append(torch.nn.Linear(n_in, n_hidden))
-            self.layers.append(torch.nn.ReLU())
+            self.layers.append(activation)
             n_in = n_hidden
 
         # delete last ReLU
@@ -21,7 +21,7 @@ class NN(torch.nn.Module):
 
 
 class NN_norm(torch.nn.Module):
-    def __init__(self, n_in, n_hidden, hidden_layers):
+    def __init__(self, n_in, n_hidden, hidden_layers, activation=torch.nn.ReLU):
         super().__init__()
 
         # Define the normalization layer
@@ -30,7 +30,7 @@ class NN_norm(torch.nn.Module):
         self.layers = torch.nn.ModuleList()
         for _ in range(hidden_layers):
             self.layers.append(torch.nn.Linear(n_in, n_hidden))
-            self.layers.append(torch.nn.ReLU())
+            self.layers.append(activation)
             n_in = n_hidden
 
         self.layers.append(torch.nn.Linear(n_hidden, 1))
@@ -61,6 +61,44 @@ class NN1(torch.nn.Module):
     def forward(self, x):
         for layer in self.layers:
             x = layer(x)
+        return x
+    
+class NN3_norm(torch.nn.Module):
+    def __init__(self, input_dim, hidden_dim, output_dim):
+        super().__init__()
+        self.normalize = torch.nn.BatchNorm1d(input_dim)
+        self.fc1 = torch.nn.Linear(input_dim, hidden_dim)
+        self.relu1 = torch.nn.ReLU()
+        self.fc2 = torch.nn.Linear(hidden_dim, hidden_dim)
+        self.relu2 = torch.nn.ReLU()
+        self.fc3 =  torch.nn.Linear(hidden_dim, hidden_dim)
+        self.tanh3 = torch.nn.Tanh()
+        self.fc4 = torch.nn.Linear(hidden_dim, hidden_dim)
+        self.sigmoid4 = torch.nn.Sigmoid()
+        self.fc5 = torch.nn.Linear(hidden_dim, hidden_dim)
+        self.prelu = torch.nn.PReLU()
+        self.fc6 = torch.nn.Linear(hidden_dim, hidden_dim)
+        self.elu = torch.nn.ELU()
+        self.fc7 = torch.nn.Linear(hidden_dim, hidden_dim)
+        self.prelu = torch.nn.PReLU()
+        self.fc8 = torch.nn.Linear(hidden_dim, hidden_dim)
+        self.elu = torch.nn.ELU()
+        self.output_layer = torch.nn.Linear(hidden_dim, output_dim)
+
+    
+    def forward(self, x):
+        # Apply input normalization
+        x = self.normalize(x)
+
+        x = self.relu1(self.fc1(x))
+        x = self.relu2(self.fc2(x))
+        x = self.tanh3(self.fc3(x))
+        x = self.sigmoid4(self.fc4(x))
+        x = self.prelu(self.fc5(x))
+        x = self.elu(self.fc6(x))
+        x = self.prelu(self.fc7(x))
+        x = self.elu(self.fc8(x))
+        x = self.output_layer(x)
         return x
 
 # class for surrogate model

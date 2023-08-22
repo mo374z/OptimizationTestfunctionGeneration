@@ -66,7 +66,7 @@ def get_second_derivative(problem, x, h=1e-5):
         second_derivative.append(second_derivative_partial.item())
     return second_derivative
 
-def get_sample(problem, n_samples, n_dim, seed=42, lower_bound=-5, upper_bound=5, method='random', particles=20, iters=250, options={'c1': 0.8, 'c2': 0.3, 'w': 0.95}):
+def get_sample(problem, n_samples, n_dim, seed=42, lower_bound=-5, upper_bound=5, method='random', particles=20, iters=50, options={'c1': 0.8, 'c2': 0.3, 'w': 0.95}):
     if method == 'random':
         result = random_sample(n_samples, n_dim, seed, lower_bound, upper_bound)
     elif method == 'pso':

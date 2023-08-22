@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import torch
 import bbobtorch
+import numpy as np
 
 
 def create_problem(f_number, n_dim, seed):
@@ -79,3 +80,46 @@ def plot_collage(samples, results, problem, problem_name, X, Y, mesh_results):
 
     plt.tight_layout()
     return plt.gca()
+
+def euclidean_distance(point1, point2):
+    return np.sqrt(np.sum((np.array(point1) - np.array(point2)) ** 2))
+
+def nearest_point(x1, x2, point_set):
+    min_distance = float('inf')
+    nearest_point = None
+    
+    for point in point_set:
+        distance = euclidean_distance([x1, x2], point)	
+        if distance < min_distance:
+            min_distance = distance
+            nearest_point = point
+    
+    return nearest_point
+
+def nearest_point_with_target(x1, x2, point_set, target):
+    min_distance = float('inf')
+    nearest_point = None
+    target_value = None
+    
+    for point, target_val in zip(point_set, target):
+        distance = euclidean_distance([x1, x2], point)	
+        if distance < min_distance:
+            min_distance = distance
+            nearest_point = point
+            target_value = target_val
+    
+    return nearest_point, target_value
+
+
+def test_function(X, X_train, X_train_grads, model):
+    ''' X 2D array of shape (2, n) '''
+    X_grads = np.zeros_like(X)
+    print(X)
+    for i in range(len(X)):
+        print(nearest_point_with_target(X[i,0], X[i,1], X_train, X_train_grads)[1])
+        X_grads[i, 0], X_grads[i, 1] = nearest_point_with_target(X[i,0], X[i,1], X_train, X_train_grads)[1]
+    
+    X_in = np.concatenate((X, X_grads), axis=1)
+    print(X_in.shape)
+
+    return model.predict(X_in)
