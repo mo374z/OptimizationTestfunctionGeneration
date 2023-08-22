@@ -64,7 +64,7 @@ def plot_ground_truth(n_dim, problem, f_name, xlim=(-5, 5), step=0.01):
     return plt.gca()
 
 
-def plot_collage(samples, results, problem, problem_name, X, Y, mesh_results):
+def plot_collage(samples, results, problem, problem_name, model_name, X, Y, mesh_results):
     # Plot the sampled points
     plt.figure(figsize=(14, 6))
 
@@ -73,7 +73,7 @@ def plot_collage(samples, results, problem, problem_name, X, Y, mesh_results):
 
     # Plot the predicted function values using a contour plot
     plt.subplot(1, 3, 2)
-    plot_simulated_meshgrid(X, Y, mesh_results, "NN Model")
+    plot_simulated_meshgrid(X, Y, mesh_results, model_name)
 
     # Plot the ground truth using a contour plot
     plt.subplot(1, 3, 3)
