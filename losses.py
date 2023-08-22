@@ -51,3 +51,30 @@ def soft_dtw(y_pred, y_true, gamma=1.0):
     D = D.cumsum(dim=2)
     
     return D[:, -1, -1]
+
+
+# custom loss for derivatives of order n
+def higher_order_derivatives(f, wrt, n):
+    derivatives = [f.sum()]
+    for f_ in f:    
+        print("juan")
+        for _ in range(n):
+            print("karlo")
+
+            grads = torch.autograd.grad(f_, wrt, create_graph=True)[0]
+            derivatives.append(grads.sum())
+            f = grads.sum()
+    
+    return torch.stack(derivatives)
+
+
+class KnollHaZeHei(torch.nn.Module):
+    def __init__(self, diff_degree, criterion):
+        super().__init__()
+        self.diff_degree = diff_degree
+        self.criterion = criterion
+
+    def forward(self, pred, true, x):
+        pred = higher_order_derivatives(pred, x, self.diff_degree)
+        true = higher_order_derivatives(true, x, self.diff_degree)
+        return self.criterion(pred, true)
