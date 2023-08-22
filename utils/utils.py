@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import torch
 import bbobtorch
 import numpy as np
+from sklearn.neighbors import KDTree
 
 
 def create_problem(f_number, n_dim, seed):
@@ -111,15 +112,28 @@ def nearest_point_with_target(x1, x2, point_set, target):
     return nearest_point, target_value
 
 
-def test_function(X, X_train, X_train_grads, model):
-    ''' X 2D array of shape (2, n) '''
-    X_grads = np.zeros_like(X)
-    print(X)
-    for i in range(len(X)):
-        print(nearest_point_with_target(X[i,0], X[i,1], X_train, X_train_grads)[1])
-        X_grads[i, 0], X_grads[i, 1] = nearest_point_with_target(X[i,0], X[i,1], X_train, X_train_grads)[1]
+# def test_function(X, X_train, X_train_grads, model):
+#     ''' X 2D array of shape (2, n) '''
+#     X_grads = np.zeros_like(X)
+#     for i in range(len(X)):
+#         X_grads[i, 0], X_grads[i, 1] = nearest_point_with_target(X[i,0], X[i,1], X_train, X_train_grads)[1]
     
-    X_in = np.concatenate((X, X_grads), axis=1)
-    print(X_in.shape)
+#     X_in = np.concatenate((X, X_grads), axis=1)
+#     return model.predict(X_in)
 
-    return model.predict(X_in)
+
+def test_function(X, X_train, X_train_grads, model):
+    # Build a KD-tree on X_train for efficient nearest neighbor searches
+    tree = KDTree(X_train)
+    
+    # Find the nearest neighbors and their corresponding gradients
+    _, indices = tree.query(X, k=1)
+    nearest_gradients = X_train_grads[indices]
+    
+    # Combine original points with nearest gradients
+    X_in = np.concatenate((X, nearest_gradients), axis=1)
+    
+    # Make predictions using the model
+    predictions = model.predict(X_in)
+    
+    return predictions
