@@ -74,7 +74,7 @@ def get_sample(problem, n_samples, n_dim, seed=42, lower_bound=-5, upper_bound=5
     else:
         raise ValueError('method must be either random or pso')
     
-    result = torch.tensor(result, requires_grad=True, dtype=torch.float64).float()
+    result = torch.tensor(result, dtype=torch.float64).float()
     gradients = np.array([])
     second_derivatives = np.array([])
 

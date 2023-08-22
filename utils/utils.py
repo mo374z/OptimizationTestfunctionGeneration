@@ -3,6 +3,9 @@ import torch
 import bbobtorch
 import numpy as np
 from sklearn.neighbors import KDTree
+from sklearn.multioutput import MultiOutputRegressor
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.exceptions import NotFittedError
 
 
 def create_problem(f_number, n_dim, seed):
@@ -82,34 +85,34 @@ def plot_collage(samples, results, problem, problem_name, model_name, X, Y, mesh
     plt.tight_layout()
     return plt.gca()
 
-def euclidean_distance(point1, point2):
-    return np.sqrt(np.sum((np.array(point1) - np.array(point2)) ** 2))
+# def euclidean_distance(point1, point2):
+#     return np.sqrt(np.sum((np.array(point1) - np.array(point2)) ** 2))
 
-def nearest_point(x1, x2, point_set):
-    min_distance = float('inf')
-    nearest_point = None
+# def nearest_point(x1, x2, point_set):
+#     min_distance = float('inf')
+#     nearest_point = None
     
-    for point in point_set:
-        distance = euclidean_distance([x1, x2], point)	
-        if distance < min_distance:
-            min_distance = distance
-            nearest_point = point
+#     for point in point_set:
+#         distance = euclidean_distance([x1, x2], point)	
+#         if distance < min_distance:
+#             min_distance = distance
+#             nearest_point = point
     
-    return nearest_point
+#     return nearest_point
 
-def nearest_point_with_target(x1, x2, point_set, target):
-    min_distance = float('inf')
-    nearest_point = None
-    target_value = None
+# def nearest_point_with_target(x1, x2, point_set, target):
+#     min_distance = float('inf')
+#     nearest_point = None
+#     target_value = None
     
-    for point, target_val in zip(point_set, target):
-        distance = euclidean_distance([x1, x2], point)	
-        if distance < min_distance:
-            min_distance = distance
-            nearest_point = point
-            target_value = target_val
+#     for point, target_val in zip(point_set, target):
+#         distance = euclidean_distance([x1, x2], point)	
+#         if distance < min_distance:
+#             min_distance = distance
+#             nearest_point = point
+#             target_value = target_val
     
-    return nearest_point, target_value
+#     return nearest_point, target_value
 
 
 # def test_function(X, X_train, X_train_grads, model):
@@ -122,16 +125,21 @@ def nearest_point_with_target(x1, x2, point_set, target):
 #     return model.predict(X_in)
 
 
-def test_function(X, X_train, X_train_grads, model):
-    # Build a KD-tree on X_train for efficient nearest neighbor searches
-    tree = KDTree(X_train)
-    
-    # Find the nearest neighbors and their corresponding gradients
-    _, indices = tree.query(X, k=1)
-    nearest_gradients = X_train_grads[indices]
-    
+def test_function(X, X_train, X_train_grads, model, method='nearest_neighbor', gradient_estimator=None):
+    if method=='nearest_neighbor':
+        # Build a KD-tree on X_train for efficient nearest neighbor searches
+        tree = KDTree(X_train)
+
+        # Find the nearest neighbors and their corresponding gradients
+        _, indices = tree.query(X, k=1)
+        estimated_gradients = X_train_grads[indices].reshape(-1, 2)
+    elif method=='estimator':
+        estimated_gradients = gradient_estimator.predict(X)
+    else:
+        raise ValueError('Method must be either nearest_neighbor or estimator')
+
     # Combine original points with nearest gradients
-    X_in = np.concatenate((X, nearest_gradients), axis=1)
+    X_in = np.concatenate((X, estimated_gradients), axis=1)
     
     # Make predictions using the model
     predictions = model.predict(X_in)
