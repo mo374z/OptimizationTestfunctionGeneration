@@ -27,34 +27,46 @@ def random_search_optimization(function, n_dim, num_iterations=100, search_range
     return best_inputs, best_outputs
 
 
-def gradient_descent_optimization(function, n_dim, num_iterations=100, learning_rate=0.01, search_range=(-5.0, 5.0)):
+def gradient_descent_optimization(function, n_dim, num_iterations=100, learning_rate=0.01, search_range=(-5.0, 5.0), epsilon=1e-4):
     best_inputs = []
     best_outputs = []
 
     # Initialize random input tensor within the search range
     best_input = torch.rand(n_dim) * (search_range[1] - search_range[0]) + search_range[0]
-    best_input.requires_grad = True  # Set requires_grad to True for autograd
+    best_input.requires_grad = False  # Set requires_grad to False, no autograd
 
     best_output = function(best_input)
 
     for _ in range(num_iterations):
-        # Perform a forward pass to compute the output
+        # Compute gradients numerically using finite differences
+        gradients = torch.zeros_like(best_input)
+        for i in range(n_dim):
+            perturbed_input = best_input.clone()
+            perturbed_input[i] += epsilon
+            perturbed_output = function(perturbed_input)
+
+            # check whether best_output and perturbed_output are a tensor
+            # if not, convert them to tensor
+            if not isinstance(best_output, torch.Tensor):
+                best_output = torch.Tensor(best_output)
+            if not isinstance(perturbed_output, torch.Tensor):
+                perturbed_output = torch.Tensor(perturbed_output)
+            gradients[i] = (perturbed_output - best_output) / epsilon
+
+        # Update the input using the computed gradients with gradient descent
+        with torch.no_grad():
+            best_input -= learning_rate * gradients
+
+        # Compute the output after the update
         output = function(best_input)
 
-        # Clear gradients from the previous iteration
-        best_input.grad = None
-
-        # Compute gradients using automatic differentiation
-        output.backward()
-
-        # Update the parameters using the computed gradients with gradient descent
-        with torch.no_grad():
-            best_input -= learning_rate * best_input.grad
+        if not isinstance(output, torch.Tensor):
+            output = torch.Tensor(output)
 
         # Update the best output and input if needed
         if output < best_output:
             best_output = output
-            best_inputs.append(best_input.detach().clone().cpu().numpy())  # Store the best input (detach to avoid gradients)
+            best_inputs.append(best_input.detach().clone().cpu().numpy())  # Store the best input
             best_outputs.append(best_output.item())
 
     return best_inputs, best_outputs
