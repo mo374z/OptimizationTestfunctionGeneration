@@ -64,3 +64,17 @@ def create_f03(dim, dev=None) -> Problem:
         t.ones(size=(dim,), dtype=t.float32, device=dev) * -5,
         t.ones(size=(dim,), dtype=t.float32, device=dev) * 5
     )
+
+@utils.seedable
+def create_f01(dim, dev=None) -> Problem:
+    x_opt = utils.rand_xopt(dim, dev)
+    f_opt = utils.rand_fopt(dev)
+    def _f(x, x_opt, f_opt):
+        z = x - x_opt[None, :]
+        norm = t.sum(z * z, dim=-1)
+        return norm + f_opt
+    return Problem(
+        _f, [x_opt, f_opt], x_opt, f_opt,
+        t.ones(size=(dim,), dtype=t.float32, device=dev) * -5,
+        t.ones(size=(dim,), dtype=t.float32, device=dev) * 5
+    )
