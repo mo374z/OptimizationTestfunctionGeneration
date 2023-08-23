@@ -1,3 +1,4 @@
+from copy import deepcopy
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
@@ -29,13 +30,14 @@ def random_search_optimization(function, n_dim, num_iterations=100, search_range
     return best_inputs, best_outputs
 
 
-def gradient_descent_optimization(function, n_dim, num_iterations=100, learning_rate=0.01, search_range=(-5.0, 5.0), epsilon=1e-4):
+def gradient_descent_optimization(function, n_dim, num_iterations=100, learning_rate=0.01, search_range=(-5.0, 5.0), epsilon=1e-5):
     best_inputs = []
     best_outputs = []
 
     # Initialize random input tensor within the search range
     best_input = torch.rand(n_dim) * (search_range[1] - search_range[0]) + search_range[0]
     best_input.requires_grad = False  # Set requires_grad to False, no autograd
+    initial_input = deepcopy(best_input)
 
     best_output = function(best_input)
 
@@ -53,7 +55,8 @@ def gradient_descent_optimization(function, n_dim, num_iterations=100, learning_
                 best_output = torch.Tensor(best_output)
             if not isinstance(perturbed_output, torch.Tensor):
                 perturbed_output = torch.Tensor(perturbed_output)
-            gradients[i] = (perturbed_output - best_output) / epsilon
+            x = (perturbed_output - best_output) / epsilon
+            gradients[i] = x #if abs(x)>1e-6 else 1e-6 # avoid zero gradient
 
         # Update the input using the computed gradients with gradient descent
         with torch.no_grad():
@@ -70,6 +73,9 @@ def gradient_descent_optimization(function, n_dim, num_iterations=100, learning_
             best_output = output
             best_inputs.append(best_input.detach().clone().cpu().numpy())  # Store the best input
             best_outputs.append(best_output.item())
+
+    if len(best_outputs) == 0:
+        best_outputs = [function(initial_input).item()]
 
     return best_inputs, best_outputs
 
@@ -124,7 +130,7 @@ def plot_optimization(functions:list, optimization_type, n_dim=2, n_times=20, i_
 
         # Loop through the original list and pad arrays
         for arr in results:
-            last_element = arr[-1]
+            last_element = arr[-1]# 0 if len(arr)== 0 else arr[-1]
             padding_length = max_length - len(arr)
             padded_arr = np.pad(arr, (0, padding_length), mode='constant', constant_values=last_element)
             padded_array_list.append(padded_arr)
