@@ -18,6 +18,25 @@ class NN(torch.nn.Module):
         for layer in self.layers:
             x = layer(x)
         return x
+    
+class NN_(torch.nn.Module):
+    def __init__(self, n_in, n_out, n_hidden, hidden_layers, activation=torch.nn.ReLU()):
+        super().__init__()
+        self.layers = torch.nn.ModuleList()
+        for _ in range(hidden_layers):
+            self.layers.append(torch.nn.Linear(n_in, n_hidden))
+            self.layers.append(activation)
+            n_in = n_hidden
+
+        # delete last ReLU
+        #self.layers = self.layers[:-1]
+        self.layers.append(torch.nn.Linear(n_hidden, n_out))
+
+
+    def forward(self, x):
+        for layer in self.layers:
+            x = layer(x)
+        return x
 
 
 class NN_norm(torch.nn.Module):
