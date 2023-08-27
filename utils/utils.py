@@ -35,9 +35,9 @@ def plot_sampled_data(samples, results, f_number: str):
     return plt.gca()
 
 
-def plot_simulated_meshgrid(X, Y, mesh_results, model: str):
+def plot_simulated_meshgrid(X, Y, mesh_results, model: str, colorbar=True):
     plt.pcolormesh(X, Y, mesh_results, cmap='inferno', shading='nearest')
-    plt.colorbar(label='Function Value')
+    if colorbar: plt.colorbar(label='Function Value')
     plt.xlabel('X1')
     plt.ylabel('X2')
     plt.title(f'Simulated Function from {model}')
