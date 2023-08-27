@@ -30,7 +30,7 @@ def random_search_optimization(function, n_dim, num_iterations=100, search_range
     return best_inputs, best_outputs
 
 
-def gradient_descent_optimization(function, n_dim, num_iterations=100, learning_rate=0.01, search_range=(-5.0, 5.0), epsilon=1e-5):
+def gradient_descent_optimization(function, n_dim, num_iterations=100, learning_rate=0.01, search_range=(-5.0, 5.0), epsilon=5e-4):
     best_inputs = []
     best_outputs = []
 
@@ -55,8 +55,7 @@ def gradient_descent_optimization(function, n_dim, num_iterations=100, learning_
                 best_output = torch.Tensor(best_output)
             if not isinstance(perturbed_output, torch.Tensor):
                 perturbed_output = torch.Tensor(perturbed_output)
-            x = (perturbed_output - best_output) / epsilon
-            gradients[i] = x #if abs(x)>1e-6 else 1e-6 # avoid zero gradient
+            gradients[i] = (perturbed_output - best_output) / epsilon 
 
         # Update the input using the computed gradients with gradient descent
         with torch.no_grad():
