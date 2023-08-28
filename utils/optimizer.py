@@ -81,6 +81,7 @@ def gradient_descent_optimization(function, n_dim, num_iterations=100, learning_
         all_evals.append(best_input.detach().clone().cpu().numpy())
 
     if len(best_outputs) == 0:
+        best_inputs = [initial_input.detach().clone().cpu().numpy()]
         best_outputs = [function(initial_input).item()]
 
     return best_inputs, best_outputs, all_evals
