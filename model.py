@@ -1,12 +1,12 @@
 import torch as torch
 
 class NN(torch.nn.Module):
-    def __init__(self, n_in, n_hidden, hidden_layers, activation=torch.nn.ReLU):
+    def __init__(self, n_in, n_hidden, hidden_layers):
         super().__init__()
         self.layers = torch.nn.ModuleList()
         for _ in range(hidden_layers):
             self.layers.append(torch.nn.Linear(n_in, n_hidden))
-            self.layers.append(activation)
+            self.layers.append(torch.nn.ReLU())
             n_in = n_hidden
 
         # delete last ReLU
