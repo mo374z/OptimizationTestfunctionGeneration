@@ -111,16 +111,16 @@ def evolutionary_optimization(function, n_dim, num_iterations=100, search_range=
     return best_inputs, best_outputs
 
 
-def perform_optimization(type, function, n_dim, num_iterations, seed):
+def perform_optimization(type, function, n_dim, num_iterations, seed, epsilon=5e-4):
     if type == "Random":
         return random_search_optimization(function, n_dim, num_iterations, seed=seed)
     elif type == "Gradient":
-        return gradient_descent_optimization(function, n_dim, num_iterations, seed=seed)
+        return gradient_descent_optimization(function, n_dim, num_iterations, seed=seed, epsilon=epsilon)
     elif type == "Evolutionary":
         return evolutionary_optimization(function, n_dim, num_iterations, seed=seed)
     
 
-def plot_optimization(functions:list, optimization_type, n_dim=2, n_times=20, i_evaluations=100, seed=42):
+def plot_optimization(functions:list, optimization_type, n_dim=2, n_times=20, i_evaluations=100, seed=42, epsilon=5e-4):
 
     for elem in functions:
 
@@ -130,7 +130,7 @@ def plot_optimization(functions:list, optimization_type, n_dim=2, n_times=20, i_
         # Perform random search 'n_times' times and store the results
         for _ in range(n_times):
             eval_seed = torch.randint(0, 1000, (1,)).item()
-            _, best_outputs = perform_optimization(optimization_type, elem[0], n_dim, num_iterations=i_evaluations, seed=eval_seed)
+            _, best_outputs = perform_optimization(optimization_type, elem[0], n_dim, num_iterations=i_evaluations, seed=eval_seed, epsilon=epsilon)
             results.append(np.array(best_outputs))
 
         # append the elements of results to the same length as the longest
@@ -169,14 +169,14 @@ def plot_optimization(functions:list, optimization_type, n_dim=2, n_times=20, i_
     return plt.gca()
 
 
-def plot_optimization_paths(functions:list, optimization_type, n_dim=2, n_times=20, i_evaluations=100, colors=None, seed=42):
+def plot_optimization_paths(functions:list, optimization_type, n_dim=2, n_times=20, i_evaluations=100, colors=None, seed=42, epsilon=5e-4):
 
     fig = plt.figure(figsize=(5*len(functions), 5))
     fig.suptitle(f"Optimization paths for {optimization_type} optimizer", fontsize=16)
 
     for i, elem in enumerate(functions):
 
-        inputs, _ = perform_optimization(optimization_type, elem[0], n_dim, num_iterations=i_evaluations, seed=seed)
+        inputs, _ = perform_optimization(optimization_type, elem[0], n_dim, num_iterations=i_evaluations, seed=seed, epsilon=epsilon)
 
         x1 = x2 = np.linspace(-5.0, 5.0, 100)
         X1, X2 = np.meshgrid(x1, x2)
