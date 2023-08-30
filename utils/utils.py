@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import pandas as pd
 import torch
 import bbobtorch
 import numpy as np
@@ -6,6 +7,9 @@ from sklearn.neighbors import KDTree
 from sklearn.multioutput import MultiOutputRegressor
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.exceptions import NotFittedError
+from sklearn.metrics import mean_squared_error
+from scipy.stats import pearsonr
+from utils.optimizer import perform_optimization
 
 
 def create_problem(f_number, n_dim, seed):
@@ -145,3 +149,84 @@ def test_function(X, X_train, X_train_grads, model, method='nearest_neighbor', g
     predictions = model.predict(X_in)
     
     return predictions
+
+
+def calculate_eval_metrics(functions:list, optims:list, n_trials, n_dim=2, max_iters_optim=100):
+    df_nr_iter = pd.DataFrame(columns=[f[1] for f in functions])
+    df_optim_loc = pd.DataFrame(columns=[f[1] for f in functions])
+    df_optim_val = pd.DataFrame(columns=[f[1] for f in functions])
+    df_mean_optim_vals = pd.DataFrame(columns=[f[1] for f in functions])
+
+    for optimization_type in optims:
+        row_iters = []
+        row_optim_loc = []
+        row_optim_val = []
+        row = []
+        for function in functions:
+            trials_iters = []
+            trials_optim_loc = []
+            trials_optim_val = []
+            trials = []
+            for i in range(n_trials):
+                res = []
+                res = perform_optimization(optimization_type, function[0], n_dim=2, num_iterations=100,)
+                trials_iters.append(len(res[1]))
+                trials_optim_loc.append(res[0][-1] if type(res[0][-1]) == np.ndarray else res[0][-1].numpy())
+                trials_optim_val.append(res[1][-1])
+                trials.append(res[1])
+            row_iters.append(f"{np.round(np.mean(trials_iters),2)}±{np.round(np.std(trials_iters),2)}")
+            row_optim_loc.append(f"{np.round(np.mean(trials_optim_loc, axis=0),2)}±{np.round(np.std(trials_optim_loc, axis=0),2)}")
+            row_optim_val.append(f"{np.round(np.mean(trials_optim_val),2)}±{np.round(np.std(trials_optim_val),2)}")
+            max_length = max(len(arr) for arr in trials)
+            padded_array_list = []
+            for arr in trials:
+                last_element = arr[-1]
+                padding_length = max_length - len(arr)
+                padded_arr = np.pad(arr, (0, padding_length), mode='constant', constant_values=last_element)
+                padded_array_list.append(padded_arr)
+            row.append(padded_array_list)
+        df_nr_iter.loc[len(df_nr_iter)] = row_iters
+        df_optim_loc.loc[len(df_optim_loc)] = row_optim_loc
+        df_optim_val.loc[len(df_optim_val)] = row_optim_val
+        df_mean_optim_vals.loc[len(df_mean_optim_vals)] = row
+
+    df_nr_iter.index = df_optim_loc.index = df_optim_val.index = df_mean_optim_vals.index = optims
+
+    # problem: different lengths of the arrays
+    # correct by padding with last element
+    df_mean_optim_vals_ = pd.DataFrame(columns=[f[1] for f in functions])
+    for row in df_mean_optim_vals.iterrows():
+        row_ = []
+        for i in range (len(row[1])):
+            max_length = 100
+            padded_array_list = []
+            for arr in row[1][i]:
+                last_element = arr[-1]
+                padding_length = max_length - len(arr)
+                if padding_length > 0:
+                    padded_arr = np.pad(arr, (0, padding_length), mode='constant', constant_values=last_element)
+                    padded_array_list.append(padded_arr.tolist())
+                else:
+                    padded_array_list.append(arr.tolist())
+            row_.append(padded_array_list)
+        df_mean_optim_vals_.loc[len(df_mean_optim_vals_)] = row_
+    df_mean_optim_vals_.index = optims
+
+    df_r = df_mean_optim_vals_.copy()
+    for row in df_r.iterrows():
+        for col in df_r.columns:
+            scores = []
+            for i in range(len(df_r.loc[row[0], col])):
+                score = pearsonr(df_mean_optim_vals_.loc[row[0], col][i], df_mean_optim_vals_.loc[row[0],'Groundtruth'][i])
+                scores.append(score[0] if not np.isnan(score[0]) else 0) # use zero as corr if one of the arrays is constant
+            df_r.loc[row[0], col] = f"{np.round(np.mean(scores),2)}±{np.round(np.std(scores),2)}"
+
+    df_mse = df_mean_optim_vals_.copy()
+    for row in df_mse.iterrows():
+        for col in df_mse.columns:
+            scores = []
+            for i in range(len(df_mse.loc[row[0], col])):
+                scores.append(mean_squared_error(df_mean_optim_vals_.loc[row[0], col][i], df_mean_optim_vals_.loc[row[0],'Groundtruth'][i]))
+            df_mse.loc[row[0], col] = f"{np.round(np.mean(scores),2)}±{np.round(np.std(scores),2)}"
+    
+    return df_nr_iter, df_optim_loc, df_optim_val, df_r, df_mse

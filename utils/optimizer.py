@@ -4,12 +4,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 from scipy.optimize import differential_evolution
-from utils.utils import plot_simulated_meshgrid
+import sys
+# sys.path.append('utils/')
+# from utils.utils import plot_simulated_meshgrid
+from utils import utils
 
 def random_search_optimization(function, n_dim, num_iterations=100, search_range=(-5.0, 5.0)):
     best_inputs = []
     best_outputs = []
-    all_evals = []
 
     best_input = None
     best_output = float('inf')
@@ -29,15 +31,13 @@ def random_search_optimization(function, n_dim, num_iterations=100, search_range
         # Save the best input and output at this iteration
         best_inputs.append(best_input)
         best_outputs.append(best_output.item())
-        all_evals.append(random_input)
 
-    return best_inputs, best_outputs, all_evals
+    return best_inputs, best_outputs
 
 
 def gradient_descent_optimization(function, n_dim, num_iterations=100, learning_rate=0.01, search_range=(-5.0, 5.0), epsilon=5e-4):
     best_inputs = []
     best_outputs = []
-    all_evals = []
 
     # Initialize random input tensor within the search range
     best_input = torch.rand(n_dim) * (search_range[1] - search_range[0]) + search_range[0]
@@ -77,14 +77,12 @@ def gradient_descent_optimization(function, n_dim, num_iterations=100, learning_
             best_output = output
             best_inputs.append(best_input.detach().clone().cpu().numpy())  # Store the best input
             best_outputs.append(best_output.item())
-        
-        all_evals.append(best_input.detach().clone().cpu().numpy())
 
     if len(best_outputs) == 0:
         best_inputs = [initial_input.detach().clone().cpu().numpy()]
         best_outputs = [function(initial_input).item()]
 
-    return best_inputs, best_outputs, all_evals
+    return best_inputs, best_outputs
 
 
 def evolutionary_optimization(function, n_dim, num_iterations=100, search_range=(-5.0, 5.0)):
@@ -107,9 +105,7 @@ def evolutionary_optimization(function, n_dim, num_iterations=100, search_range=
     for i in range(len(best_inputs)):
         best_outputs.append(wrap_function(best_inputs[i]))
 
-    all_evals = best_inputs
-
-    return best_inputs, best_outputs, all_evals
+    return best_inputs, best_outputs
 
 
 def perform_optimization(type, function, n_dim, num_iterations):
@@ -129,7 +125,7 @@ def plot_optimization(functions:list, optimization_type, n_dim=2, n_times=20, i_
 
         # Perform random search 'n_times' times and store the results
         for _ in range(n_times):
-            _, best_outputs, _ = perform_optimization(optimization_type, elem[0], n_dim, num_iterations=i_evaluations)
+            _, best_outputs = perform_optimization(optimization_type, elem[0], n_dim, num_iterations=i_evaluations)
             results.append(np.array(best_outputs))
 
         # append the elements of results to the same length as the longest
@@ -175,7 +171,7 @@ def plot_optimization_paths(functions:list, optimization_type, n_dim=2, n_times=
 
     for i, elem in enumerate(functions):
 
-        _, _, all_evals = perform_optimization(optimization_type, elem[0], n_dim, num_iterations=i_evaluations)
+        inputs, _ = perform_optimization(optimization_type, elem[0], n_dim, num_iterations=i_evaluations)
 
         x1 = x2 = np.linspace(-5.0, 5.0, 100)
         X1, X2 = np.meshgrid(x1, x2)
@@ -185,8 +181,8 @@ def plot_optimization_paths(functions:list, optimization_type, n_dim=2, n_times=
 
         fig.add_subplot(1,len(functions),i+1)
 
-        plot_simulated_meshgrid(X1, X2, mesh_results, elem[1], colorbar=False)
-        plt.plot([x[0] for x in all_evals], [x[1] for x in all_evals], marker='o', markersize=3.5, markeredgecolor='black', linewidth=1, color=colors[i] if colors is not None else 'white')
+        utils.plot_simulated_meshgrid(X1, X2, mesh_results, elem[1], colorbar=False)
+        plt.plot([x[0] for x in inputs], [x[1] for x in inputs], marker='o', markersize=3.5, markeredgecolor='black', linewidth=1, color=colors[i] if colors is not None else 'white')
         plt.xlim(-5,5)
         plt.ylim(-5,5)
         plt.xlabel("x1")
