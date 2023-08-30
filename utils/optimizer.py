@@ -9,13 +9,15 @@ import sys
 # from utils.utils import plot_simulated_meshgrid
 from utils import utils
 
-def random_search_optimization(function, n_dim, num_iterations=100, search_range=(-5.0, 5.0)):
+def random_search_optimization(function, n_dim, num_iterations=100, search_range=(-5.0, 5.0), seed=42):
     best_inputs = []
     best_outputs = []
 
     best_input = None
     best_output = float('inf')
 
+    torch.manual_seed(seed)
+ 
     for _ in range(num_iterations):
         # Generate a random tensor input within the search range
         random_input = torch.rand(n_dim) * (search_range[1] - search_range[0]) + search_range[0]
@@ -35,10 +37,11 @@ def random_search_optimization(function, n_dim, num_iterations=100, search_range
     return best_inputs, best_outputs
 
 
-def gradient_descent_optimization(function, n_dim, num_iterations=100, learning_rate=0.01, search_range=(-5.0, 5.0), epsilon=5e-4):
+def gradient_descent_optimization(function, n_dim, num_iterations=100, learning_rate=0.01, search_range=(-5.0, 5.0), epsilon=5e-4, seed=42):
     best_inputs = []
     best_outputs = []
 
+    torch.manual_seed(seed)
     # Initialize random input tensor within the search range
     best_input = torch.rand(n_dim) * (search_range[1] - search_range[0]) + search_range[0]
     best_input.requires_grad = False  # Set requires_grad to False, no autograd
@@ -85,7 +88,7 @@ def gradient_descent_optimization(function, n_dim, num_iterations=100, learning_
     return best_inputs, best_outputs
 
 
-def evolutionary_optimization(function, n_dim, num_iterations=100, search_range=(-5.0, 5.0)):
+def evolutionary_optimization(function, n_dim, num_iterations=100, search_range=(-5.0, 5.0), seed=42):
     best_inputs = []
     best_outputs = []
     all_evals = []
@@ -99,7 +102,7 @@ def evolutionary_optimization(function, n_dim, num_iterations=100, search_range=
     result = differential_evolution(wrap_function, 
         bounds=[(-5,5), (-5,5)], 
         maxiter=num_iterations, 
-        callback=callback_func, popsize=10, tol=1e-9)
+        callback=callback_func, popsize=10, tol=1e-9, seed=seed)
 
     # calculate best outputs
     for i in range(len(best_inputs)):
@@ -108,24 +111,26 @@ def evolutionary_optimization(function, n_dim, num_iterations=100, search_range=
     return best_inputs, best_outputs
 
 
-def perform_optimization(type, function, n_dim, num_iterations):
+def perform_optimization(type, function, n_dim, num_iterations, seed):
     if type == "Random":
-        return random_search_optimization(function, n_dim, num_iterations)
+        return random_search_optimization(function, n_dim, num_iterations, seed=seed)
     elif type == "Gradient":
-        return gradient_descent_optimization(function, n_dim, num_iterations)
+        return gradient_descent_optimization(function, n_dim, num_iterations, seed=seed)
     elif type == "Evolutionary":
-        return evolutionary_optimization(function, n_dim, num_iterations)
+        return evolutionary_optimization(function, n_dim, num_iterations, seed=seed)
     
 
-def plot_optimization(functions:list, optimization_type, n_dim=2, n_times=20, i_evaluations=100):
+def plot_optimization(functions:list, optimization_type, n_dim=2, n_times=20, i_evaluations=100, seed=42):
 
     for elem in functions:
 
         results = []
+        torch.manual_seed(seed)
 
         # Perform random search 'n_times' times and store the results
         for _ in range(n_times):
-            _, best_outputs = perform_optimization(optimization_type, elem[0], n_dim, num_iterations=i_evaluations)
+            eval_seed = torch.randint(0, 1000, (1,)).item()
+            _, best_outputs = perform_optimization(optimization_type, elem[0], n_dim, num_iterations=i_evaluations, seed=eval_seed)
             results.append(np.array(best_outputs))
 
         # append the elements of results to the same length as the longest
@@ -164,14 +169,14 @@ def plot_optimization(functions:list, optimization_type, n_dim=2, n_times=20, i_
     return plt.gca()
 
 
-def plot_optimization_paths(functions:list, optimization_type, n_dim=2, n_times=20, i_evaluations=100, colors=None):
+def plot_optimization_paths(functions:list, optimization_type, n_dim=2, n_times=20, i_evaluations=100, colors=None, seed=42):
 
     fig = plt.figure(figsize=(5*len(functions), 5))
     fig.suptitle(f"Optimization paths for {optimization_type} optimizer", fontsize=16)
 
     for i, elem in enumerate(functions):
 
-        inputs, _ = perform_optimization(optimization_type, elem[0], n_dim, num_iterations=i_evaluations)
+        inputs, _ = perform_optimization(optimization_type, elem[0], n_dim, num_iterations=i_evaluations, seed=seed)
 
         x1 = x2 = np.linspace(-5.0, 5.0, 100)
         X1, X2 = np.meshgrid(x1, x2)
