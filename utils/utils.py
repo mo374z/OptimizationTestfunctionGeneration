@@ -167,9 +167,11 @@ def calculate_eval_metrics(functions:list, optims:list, n_trials, n_dim=2, max_i
             trials_optim_loc = []
             trials_optim_val = []
             trials = []
+            torch.manual_seed(seed)
             for i in range(n_trials):
+                eval_seed = torch.randint(0, 1000, (1,)).item()
                 res = []
-                res = perform_optimization(optimization_type, function[0], n_dim=2, num_iterations=100, seed=seed, epsilon=epsilon)
+                res = perform_optimization(optimization_type, function[0], n_dim=2, num_iterations=100, seed=eval_seed, epsilon=epsilon)
                 trials_iters.append(len(res[1]))
                 trials_optim_loc.append(res[0][-1] if type(res[0][-1]) == np.ndarray else res[0][-1].numpy())
                 trials_optim_val.append(res[1][-1])
