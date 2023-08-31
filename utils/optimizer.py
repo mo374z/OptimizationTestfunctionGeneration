@@ -111,7 +111,7 @@ def evolutionary_optimization(function, n_dim, num_iterations=100, search_range=
     return best_inputs, best_outputs
 
 
-def perform_optimization(type, function, n_dim, num_iterations, seed, epsilon=5e-4):
+def perform_optimization(type, function, n_dim, num_iterations, seed=42, epsilon=5e-4):
     if type == "Random":
         return random_search_optimization(function, n_dim, num_iterations, seed=seed)
     elif type == "Gradient":

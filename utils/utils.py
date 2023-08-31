@@ -151,7 +151,7 @@ def test_function(X, X_train, X_train_grads, model, method='nearest_neighbor', g
     return predictions
 
 
-def calculate_eval_metrics(functions:list, optims:list, n_trials, n_dim=2, max_iters_optim=100):
+def calculate_eval_metrics(functions:list, optims:list, n_trials, n_dim=2, max_iters_optim=100, seed=42, epsilon=5e-4):
     df_nr_iter = pd.DataFrame(columns=[f[1] for f in functions])
     df_optim_loc = pd.DataFrame(columns=[f[1] for f in functions])
     df_optim_val = pd.DataFrame(columns=[f[1] for f in functions])
@@ -169,7 +169,7 @@ def calculate_eval_metrics(functions:list, optims:list, n_trials, n_dim=2, max_i
             trials = []
             for i in range(n_trials):
                 res = []
-                res = perform_optimization(optimization_type, function[0], n_dim=2, num_iterations=100,)
+                res = perform_optimization(optimization_type, function[0], n_dim=2, num_iterations=100, seed=seed, epsilon=epsilon)
                 trials_iters.append(len(res[1]))
                 trials_optim_loc.append(res[0][-1] if type(res[0][-1]) == np.ndarray else res[0][-1].numpy())
                 trials_optim_val.append(res[1][-1])
