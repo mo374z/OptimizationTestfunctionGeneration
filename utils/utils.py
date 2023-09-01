@@ -33,8 +33,8 @@ def plot_sampled_data(samples, results, f_number: str):
     colorbar.set_label('Function Value', rotation=270, labelpad=15)
 
     # Add labels and title
-    plt.xlabel('X1')
-    plt.ylabel('X2')
+    plt.xlabel('$x_{1}$')
+    plt.ylabel('$x_{2}$')
     plt.title(f'Custom Samples with Function Values ({f_number})')
     return plt.gca()
 
@@ -42,8 +42,8 @@ def plot_sampled_data(samples, results, f_number: str):
 def plot_simulated_meshgrid(X, Y, mesh_results, model: str, colorbar=True):
     plt.pcolormesh(X, Y, mesh_results, cmap='inferno', shading='nearest')
     if colorbar: plt.colorbar(label='Function Value')
-    plt.xlabel('X1')
-    plt.ylabel('X2')
+    plt.xlabel('$x_{1}$')
+    plt.ylabel('$x_{2}$')
     plt.title(f'Simulated Function from {model}')
 
     return plt.gca()
@@ -65,8 +65,8 @@ def plot_ground_truth(n_dim, problem, f_name, xlim=(-5, 5), step=0.01):
     plt.colorbar()
     plt.plot(problem.x_opt[0], problem.x_opt[1], 'rx', markersize=10, label='x_opt')
 
-    plt.xlabel('X')
-    plt.ylabel('Y')
+    plt.xlabel('$x_{1}$')
+    plt.ylabel('$x_{2}$')
     plt.title(f'Ground Truth of {f_name} Function')
     return plt.gca()
 
