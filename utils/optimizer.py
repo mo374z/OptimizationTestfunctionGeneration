@@ -171,7 +171,7 @@ def plot_optimization(functions:list, optimization_type, n_dim=2, n_times=20, i_
 
 def plot_optimization_paths(functions:list, optimization_type, n_dim=2, n_times=20, i_evaluations=100, colors=None, seed=42, epsilon=5e-4):
 
-    fig = plt.figure(figsize=(5*len(functions), 5))
+    fig = plt.figure(figsize=(10, 15))
     fig.suptitle(f"Optimization paths for {optimization_type} optimizer", fontsize=16)
 
     for i, elem in enumerate(functions):
@@ -184,7 +184,7 @@ def plot_optimization_paths(functions:list, optimization_type, n_dim=2, n_times=
         mesh_samples_tensor = torch.tensor(mesh_samples, dtype=torch.float32)
         mesh_results = elem[0](mesh_samples_tensor).reshape(X1.shape)
 
-        fig.add_subplot(1,len(functions),i+1)
+        fig.add_subplot(3,2,i+1)
 
         utils.plot_simulated_meshgrid(X1, X2, mesh_results, elem[1], colorbar=False)
         plt.plot([x[0] for x in inputs], [x[1] for x in inputs], marker='o', markersize=3.5, markeredgecolor='black', linewidth=1, color=colors[i] if colors is not None else 'white')
