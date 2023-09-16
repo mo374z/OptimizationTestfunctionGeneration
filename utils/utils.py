@@ -13,6 +13,7 @@ from utils.optimizer import perform_optimization
 
 
 def create_problem(f_number, n_dim, seed):
+    '''Create a BBOB problem (F01, F03, and  F24)'''
     if f_number == 1:
         problem = bbobtorch.create_f01(n_dim, seed=seed)
     elif f_number == 3:
@@ -25,6 +26,7 @@ def create_problem(f_number, n_dim, seed):
     return problem
 
 def plot_sampled_data(samples, results, f_number: str):	
+    '''Create a scatter plot of the sampled points'''
     plt.scatter(samples[:, 0], samples[:, 1], c=results, cmap='inferno', s=1)
 
     # Add color bar for reference
@@ -40,6 +42,7 @@ def plot_sampled_data(samples, results, f_number: str):
 
 
 def plot_simulated_meshgrid(X, Y, mesh_results, model: str, colorbar=True):
+    '''Create a contour plot of the simulated function values'''
     # Create a heatmap-like plot of simulated function values on a meshgrid defined by X and Y
     plt.pcolormesh(X, Y, mesh_results, cmap='inferno', shading='nearest')
     if colorbar: plt.colorbar(label='Function Value')
@@ -50,6 +53,7 @@ def plot_simulated_meshgrid(X, Y, mesh_results, model: str, colorbar=True):
     return plt.gca()
 
 def plot_ground_truth(n_dim, problem, f_name, xlim=(-5, 5), step=0.01):
+    '''Create a contour plot of the ground truth function'''
     ranges = [torch.arange(xlim[0], xlim[1] + step, step=step) for _ in range(n_dim)]
     meshgrid = torch.meshgrid(*ranges)
     points = torch.stack(meshgrid, dim=-1).view(-1, n_dim)
@@ -73,6 +77,7 @@ def plot_ground_truth(n_dim, problem, f_name, xlim=(-5, 5), step=0.01):
 
 
 def plot_collage(samples, results, problem, problem_name, model_name, X, Y, mesh_results):
+    '''Create a plot colage with sampled points, predicted function values and ground truth'''
     
     plt.figure(figsize=(14, 6))
     plt.subplot(1, 3, 1)
@@ -92,7 +97,8 @@ def plot_collage(samples, results, problem, problem_name, model_name, X, Y, mesh
 
 
 def plot_collage_results(problem, problem_name, model_name, model_name_2, X, Y, mesh_results, mesh_results_2):
-    # Create a plot colage with mesh results from model 1, ground truth and mesh results from model 2
+    '''Create a plot colage with sampled points, predicted function values and ground truth'''	
+
     # Plot the sampled points
     plt.figure(figsize=(14, 6))
 
@@ -133,6 +139,7 @@ def test_function(X, X_train, X_train_grads, model, method='nearest_neighbor', g
     return predictions
 
 def calculate_eval_metrics(functions:list, optims:list, n_trials, n_dim=2,  seed=42, epsilon=5e-4): #max_iters_optim=100, XXX check if this is needed
+    '''Calculate the number of iterations, the optimal location, the optimal value, the correlation and the MSE for each function and optimization method'''
     
     df_nr_iter = pd.DataFrame(columns=[f[1] for f in functions])
     df_optim_loc = pd.DataFrame(columns=[f[1] for f in functions])
