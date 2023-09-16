@@ -183,7 +183,7 @@ def test_function(X, X_train, X_train_grads, model, method='nearest_neighbor', g
         method is the method used to estimate the gradients of the input X (either nearest_neighbor or estimator)
         gradient_estimator is the estimator used to estimate the gradients of the input X (only needed if method is estimator)
     '''    
-    
+
     if method=='nearest_neighbor':
         # Build a KD-tree on X_train for efficient nearest neighbor searches
         tree = KDTree(X_train)
@@ -208,6 +208,13 @@ def calculate_eval_metrics(functions:list, optims:list, n_trials, n_dim=2,  seed
     ''' 
         Calculate the number of iterations, the optimal location, the optimal value, 
         the correlation and the MSE between the optimization curves for each function and optimization method
+
+        functions is a list of tuples with the BBOB function and the name of the function
+        optims is a list of the optimization methods
+        n_trials is the number of trials to perform for each function and optimization method
+        n_dim is the number of dimensions of the problem (2 is used for the BBOB functions)
+        seed is the seed used to create the problem
+        epsilon is the epsilon used for the optimization methods
     '''
     
     df_nr_iter = pd.DataFrame(columns=[f[1] for f in functions])
