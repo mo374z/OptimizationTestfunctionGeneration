@@ -10,6 +10,18 @@ import sys
 from utils import utils
 
 def random_search_optimization(function, n_dim, num_iterations=100, search_range=(-5.0, 5.0), seed=42):
+    """
+    Performs random search optimization for a given function.
+    Args:
+        function: Function to optimize.
+        n_dim: Number of dimensions of the input.
+        num_iterations: Number of iterations to perform.
+        search_range: Range of the input values.
+        seed: Seed for the random number generator.
+    Returns:
+        best_inputs: List of best inputs at each iteration.
+        best_outputs: List of best outputs at each iteration.
+    """
     best_inputs = []
     best_outputs = []
 
@@ -38,6 +50,21 @@ def random_search_optimization(function, n_dim, num_iterations=100, search_range
 
 
 def gradient_descent_optimization(function, n_dim, num_iterations=100, learning_rate=0.01, search_range=(-5.0, 5.0), epsilon=5e-4, seed=42):
+    """
+    Performs gradient descent optimization for a given function.
+    Args:
+        function: Function to optimize.
+        n_dim: Number of dimensions of the input.
+        num_iterations: Number of iterations to perform.
+        learning_rate: Learning rate for the gradient descent.
+        search_range: Range of the input values.12
+        epsilon: Epsilon for the finite differences.
+        seed: Seed for the random number generator.
+    Returns:
+        best_inputs: List of best inputs at each iteration.
+        best_outputs: List of best outputs at each iteration.
+    """
+
     best_inputs = []
     best_outputs = []
 
@@ -89,6 +116,18 @@ def gradient_descent_optimization(function, n_dim, num_iterations=100, learning_
 
 
 def evolutionary_optimization(function, n_dim, num_iterations=100, search_range=(-5.0, 5.0), seed=42):
+    """
+    Performs evolutionary optimization for a given function.
+    Args:
+        function: Function to optimize.
+        n_dim: Number of dimensions of the input.
+        num_iterations: Number of iterations to perform.
+        search_range: Range of the input values.
+        seed: Seed for the random number generator.
+    Returns:
+        best_inputs: List of best inputs at each iteration.
+        best_outputs: List of best outputs at each iteration.
+    """
     best_inputs = []
     best_outputs = []
     all_evals = []
@@ -112,6 +151,20 @@ def evolutionary_optimization(function, n_dim, num_iterations=100, search_range=
 
 
 def perform_optimization(type, function, n_dim, num_iterations, seed=42, epsilon=5e-4):
+    """
+    Performs optimization for a given function.
+    Args:
+        type: Type of optimization to perform.
+        function: Function to optimize.
+        n_dim: Number of dimensions of the input.
+        num_iterations: Number of iterations to perform.
+        seed: Seed for the random number generator.
+        epsilon: Epsilon for the finite differences.
+    Returns:
+        best_inputs: List of best inputs at each iteration.
+        best_outputs: List of best outputs at each iteration.
+
+    """
     if type == "Random":
         return random_search_optimization(function, n_dim, num_iterations, seed=seed)
     elif type == "Gradient":
@@ -121,6 +174,19 @@ def perform_optimization(type, function, n_dim, num_iterations, seed=42, epsilon
     
 
 def plot_optimization(functions:list, optimization_type, n_dim=2, n_times=20, i_evaluations=100, seed=42, epsilon=5e-4):
+    """
+    Plots the optimization results for a given function.
+    Args:
+        functions: List of tuples (function, name) to optimize.
+        optimization_type: Type of optimization to perform.
+        n_dim: Number of dimensions of the input.
+        n_times: Number of times to perform the optimization.
+        i_evaluations: Number of iterations to perform.
+        seed: Seed for the random number generator.
+        epsilon: Epsilon for the finite differences.
+    Returns:
+        fig: Figure with the plot.
+    """
 
     for elem in functions:
 
@@ -170,7 +236,21 @@ def plot_optimization(functions:list, optimization_type, n_dim=2, n_times=20, i_
 
 
 def plot_optimization_paths(functions:list, optimization_type, n_dim=2, n_times=20, i_evaluations=100, colors=None, seed=42, epsilon=5e-4):
-
+    """
+    Plots the optimization paths for a given function.
+    Args:
+        functions: List of tuples (function, name) to optimize.
+        optimization_type: Type of optimization to perform.
+        n_dim: Number of dimensions of the input.
+        n_times: Number of times to perform the optimization.
+        i_evaluations: Number of iterations to perform.
+        colors: List of colors for each function.
+        seed: Seed for the random number generator.
+        epsilon: Epsilon for the finite differences.
+    Returns:
+        fig: Figure with the plot.
+    """
+    
     fig = plt.figure(figsize=(10, 15))
     fig.suptitle(f"Optimization paths for {optimization_type} optimizer", fontsize=16)
 
