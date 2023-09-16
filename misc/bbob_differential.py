@@ -8,6 +8,16 @@ utils = bbobtorch.utils
 
 @utils.seedable
 def create_f24(dim, dev=None):
+    """
+    Creates a differentiable version of the BBOB function f24.
+
+    Args:
+        dim: Dimensionality of the problem.
+        dev: Device to use.
+
+    Returns:
+        A differentiable version of the BBOB function f24.
+    """
     s = 1 - 1/(2*math.sqrt(dim+20.0)-8.2)
     d = 1
     mu_0 = 2.5
@@ -46,6 +56,16 @@ def T_asy(x, beta, dim) -> t.Tensor:
 
 @utils.seedable
 def create_f03(dim, dev=None) -> Problem:
+    """
+    Creates a differentiable version of the BBOB function f03.
+
+    Args:
+        dim: Dimensionality of the problem.
+        dev: Device to use.
+
+    Returns:
+        A differentiable version of the BBOB function f03.
+    """
     x_opt = utils.rand_xopt(dim, dev)
     f_opt = utils.rand_fopt(dev)
     lamb = utils.Lambda(10, dim, t.float32, dev)
@@ -67,6 +87,16 @@ def create_f03(dim, dev=None) -> Problem:
 
 @utils.seedable
 def create_f01(dim, dev=None) -> Problem:
+    """
+    Creates a differentiable version of the BBOB function f01.
+
+    Args:
+        dim: Dimensionality of the problem.
+        dev: Device to use.
+
+    Returns:
+        A differentiable version of the BBOB function f01.
+    """
     x_opt = utils.rand_xopt(dim, dev)
     f_opt = utils.rand_fopt(dev)
     def _f(x, x_opt, f_opt):
