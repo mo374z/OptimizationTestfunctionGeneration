@@ -13,12 +13,13 @@ Goal of the project is to train a Machine Learning model on samples of distinct 
 
 ## Usage
 
-For the chapter 3.2 a comprehensive study of our sampling method can be found in main/sampling_test.ipynb.
+- main/sampling_test.ipynb: a comprehensive study of our sampling method (see chapter 3.2 Sampling)
 
-In the main folder the code for the simulations of the bbobtorch functions f1, f3 and f24 used for chapter 4 and evaluated in chapter 5. can be found.
-For the training of the Neural Networks via MSE and Taylor-Loss there are seperate notebooks.
+- **main**: code for the simulations of the **bbobtorch functions** f1, f3 and f24 (see chapter 4 Testfunction Simulation) and evaluation in (see chapter 5 Evaluation)
 
-Utils can be found in the utils folder, consisting of further utils, groundtruth sampling and optimizers.
+- For the training of the **Neural Networks** via **MSE** and **Taylor-Loss** there are seperate notebooks.
+
+- utils can be found in the **utils** folder, consisting of further **utils**, **groundtruth sampling** and **optimizers**.
 
 
 ________
