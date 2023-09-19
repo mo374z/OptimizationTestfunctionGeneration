@@ -4,7 +4,7 @@ Goal of the project is to train a Machine Learning model on samples of distinct 
 The project summary can be found in the paper attached to this repository.
 
 ## Methodical approach
-![workflow](https://github.com/mo374z/OptimizationTestfunctionGeneration/assets/87517800/5d80da44-4f8c-46f2-9867-3b33f7b4a5a9)
+![workflow](https://github.com/mo374z/OptimizationTestfunctionGeneration/assets/87517800/204823e0-7702-431f-8340-22deb2f16db1)
 
 ## Installation
 1. clone the repo
