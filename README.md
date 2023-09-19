@@ -1,10 +1,10 @@
 # OptimizationTestfunctionGeneration
 
-Goal of the project is to train a Machine Learning model on samples of distinct Ground Truth Functions to approximate the Ground Truth Function. The quality of the outcome is evaluated with focus on optimization algorithms.
+Goal of the project is to train a Machine Learning model on samples of distinct Ground Truth Functions to simulate the Ground Truth Function. The quality of the outcome is evaluated with focus on optimization algorithms.
 The project summary can be found in the paper attached to this repository.
 
 ## Methodical approach
-![Methodical Approach](https://github.com/mo374z/OptimizationTestfunctionGeneration/blob/main/method.png)
+![workflow](https://github.com/mo374z/OptimizationTestfunctionGeneration/assets/87517800/5d80da44-4f8c-46f2-9867-3b33f7b4a5a9)
 
 ## Installation
 1. clone the repo
